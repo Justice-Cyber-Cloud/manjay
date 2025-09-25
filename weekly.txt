@@ -1,0 +1,14 @@
+AAD Audit & Sign-in Logs Review
+-Observations: The review of Microsoft Entra sign-in logs confirmed that system operations remain normal and stable. Several sign-in attempts were unsuccessful due to unmet authentication requirements, enforced conditional access policies, or incorrect credentials. These factors triggered temporary account lockouts for some users; however, no indications of malicious activity were detected during the review. The affected users includes Christine Jakobson, Linda Eggert,Sarah Miller, John Farnham,Sarah Eccleston, Emily Elstub, Nick Basannavar, Stacey Axten, David Rodin, Leonardo Werner, James Dempsey, Isabella Ludlam 
+
+- Action Taken: Reviewed the failed login attempts and confirmed they resulted from incorrect credentials or unmet authentication requirements. No accounts were locked, and no malicious activity was identified. Monitoring will continue to ensure normal operation. 
+-Recommendations: Encourage users to securely store their credentials using a trusted password manager. This helps prevent sign-in issues caused by forgotten or mistyped passwords and promotes stronger, unique password practices.
+
+Microsoft 365 Defender Review
+- Alerts/Incidents: No alerts or incidents detected
+- Actions Taken: No abnormal behaviors in the users activities. Also checked audit logs of the users and there are no abnormal activities on their accounts.
+- Conclusion/Recommendations: Everything checked and looks stable. No abnormal activities or incidents to be investigated
+Company Website & WordFence Security Review
+- Observation: Total number of blocked attempts in the last 7 days is 20 and everything is working as expected blocking unauthorized access.
+ 
+- Actions Taken: Checked sign in logs as a routine and everything looks alright.
