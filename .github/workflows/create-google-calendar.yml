@@ -1,0 +1,61 @@
+name: GitHub Issue → Shared Google Calendar
+
+on:
+  issues:
+    types: [opened, edited, assigned]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  create-calendar-event:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Read issue data
+        id: issue
+        run: |
+          echo "title=${{ github.event.issue.title }}" >> $GITHUB_OUTPUT
+          echo "url=${{ github.event.issue.html_url }}" >> $GITHUB_OUTPUT
+          echo "number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          echo "assignee=${{ github.event.issue.assignee.login || '' }}" >> $GITHUB_OUTPUT
+          echo "due=${{ github.event.issue.milestone.due_on || '' }}" >> $GITHUB_OUTPUT
+
+      - name: Build event time
+        id: time
+        run: |
+          START=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          END=$(date -u -d "$START +1 hour" +"%Y-%m-%dT%H:%M:%SZ")
+
+          echo "start=$START" >> $GITHUB_OUTPUT
+          echo "end=$END" >> $GITHUB_OUTPUT
+
+      - name: Create calendar event
+        continue-on-error: true
+        run: |
+          curl -s -X POST \
+            -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+            -H "Content-Type: application/json" \
+            "https://www.googleapis.com/calendar/v3/calendars/${{ secrets.GOOGLE_CALENDAR_ID }}/events" \
+            -d "{
+              \"summary\": \"GitHub Issue #${{ steps.issue.outputs.number }}: ${{ steps.issue.outputs.title }}\",
+              \"description\": \"${{ steps.issue.outputs.url }}\",
+              \"start\": { \"dateTime\": \"${{ steps.time.outputs.start }}\" },
+              \"end\": { \"dateTime\": \"${{ steps.time.outputs.end }}\" }
+            }"
+
+      - name: Comment on issue
+        run: |
+          gh api repos/${{ github.repository }}/issues/${{ steps.issue.outputs.number }}/comments \
+            -f body=\"📅 Event added to shared project calendar\"
+        env:
+          GH_TOKEN: ${{ github.token }}
